@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Visual Art Museum</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0d0d0d; color:#f0ece4; font-family:'DM Sans',sans-serif; }
+
+.page { display:none; min-height:100vh; }
+.page.active { display:flex; flex-direction:column; }
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.page.active { animation:fadeIn 0.4s ease; }
+
+/* LOBBY */
+#lobby {
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px 24px;
+  background:radial-gradient(ellipse at 60% 40%, #1a1208 0%, #0d0d0d 70%);
+  position:relative;
+  overflow:hidden;
+}
+#lobby::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,255,255,.015) 61px),
+    repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,255,255,.015) 61px);
+  pointer-events:none;
+}
+.lobby-tag { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#c9a84c; margin-bottom:20px; position:relative; }
+.lobby-title { font-family:'Playfair Display',serif; font-size:clamp(40px,10vw,80px); font-weight:700; line-height:1.05; margin-bottom:10px; position:relative; }
+.lobby-title em { font-style:italic; color:#c9a84c; }
+.lobby-sub { font-size:11px; letter-spacing:3px; color:rgba(240,236,228,.4); text-transform:uppercase; margin-bottom:44px; position:relative; }
+.deco-line { width:1px; height:64px; background:linear-gradient(to bottom,transparent,#c9a84c,transparent); margin:0 auto 36px; position:relative; }
+
+.enter-btn {
+  padding:15px 44px;
+  background:transparent;
+  border:1px solid #c9a84c;
+  color:#c9a84c;
+  font-family:'DM Sans',sans-serif;
+  font-size:12px; letter-spacing:3px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .3s ease;
+  position:relative; overflow:hidden;
+}
+.enter-btn::before {
+  content:''; position:absolute; inset:0;
+  background:#c9a84c;
+  transform:translateX(-101%);
+  transition:transform .3s ease;
+}
+.enter-btn:hover::before { transform:translateX(0); }
+.enter-btn:hover { color:#0d0d0d; }
+.enter-btn span { position:relative; z-index:1; }
+
+/* GALLERY */
+#gallery { padding:28px 20px; background:#0d0d0d; }
+
+.gallery-header {
+  display:flex; align-items:center;
+  justify-content:space-between;
+  margin-bottom:32px; padding-bottom:16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.back-btn {
+  background:transparent;
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(240,236,228,.55);
+  padding:8px 14px; font-size:11px;
+  letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.back-btn:hover { border-color:#c9a84c; color:#c9a84c; }
+.gallery-title { font-family:'Playfair Display',serif; font-size:20px; }
+.art-count { font-size:11px; color:rgba(240,236,228,.3); }
+
+.cards { display:flex; flex-direction:column; gap:14px; }
+
+.art-card {
+  border:1px solid rgba(255,255,255,.07);
+  padding:22px 24px; cursor:pointer;
+  transition:all .3s ease;
+  background:rgba(255,255,255,.02);
+  position:relative; overflow:hidden;
+}
+.art-card::before {
+  content:''; position:absolute;
+  left:0; top:0; bottom:0; width:3px;
+  background:var(--accent,#c9a84c);
+  transform:scaleY(0); transition:transform .3s ease;
+  transform-origin:bottom;
+}
+.art-card:hover::before { transform:scaleY(1); }
+.art-card:hover { background:rgba(255,255,255,.05); transform:translateX(5px); }
+.card-emoji { font-size:26px; margin-bottom:10px; display:block; }
+.card-type { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--accent,#c9a84c); margin-bottom:6px; }
+.card-title { font-family:'Playfair Display',serif; font-size:20px; color:#f0ece4; margin-bottom:4px; }
+.card-artist { font-size:12px; color:rgba(240,236,228,.4); }
+.card-arrow { position:absolute; right:22px; top:50%; transform:translateY(-50%); color:var(--accent,#c9a84c); opacity:0; transition:opacity .2s; font-size:18px; }
+.art-card:hover .card-arrow { opacity:1; }
+
+/* DETAIL */
+#detail { background:#0d0d0d; }
+
+.detail-hero {
+  height:220px; display:flex;
+  align-items:center; justify-content:center;
+  font-size:72px; position:relative;
+  flex-shrink:0;
+}
+.detail-hero::after {
+  content:''; position:absolute;
+  bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(to right,transparent,var(--d-accent,#c9a84c),transparent);
+}
+.detail-body { padding:30px 20px; }
+.detail-type { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:var(--d-accent,#c9a84c); margin-bottom:10px; }
+.detail-title { font-family:'Playfair Display',serif; font-size:32px; line-height:1.1; margin-bottom:6px; }
+.detail-artist { font-size:13px; color:rgba(240,236,228,.4); margin-bottom:26px; letter-spacing:1px; }
+.detail-divider { width:38px; height:1px; background:var(--d-accent,#c9a84c); margin-bottom:18px; }
+.detail-desc { font-size:14px; line-height:1.85; color:rgba(240,236,228,.72); margin-bottom:40px; }
+.detail-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
+.action-btn {
+  padding:12px 22px; font-size:11px;
+  letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  transition:all .2s;
+}
+.action-primary { background:var(--d-accent,#c9a84c); border:1px solid var(--d-accent,#c9a84c); color:#0d0d0d; font-weight:500; }
+.action-primary:hover { opacity:.82; }
+.action-secondary { background:transparent; border:1px solid rgba(255,255,255,.15); color:rgba(240,236,228,.55); }
+.action-secondary:hover { border-color:var(--d-accent,#c9a84c); color:var(--d-accent,#c9a84c); }
+</style>
+</head>
+<body>
+
+<!-- LOBBY -->
+<div id="lobby" class="page active">
+  <div class="lobby-tag">Group 2 · Come Department</div>
+  <h1 class="lobby-title">Visual <em>Art</em><br/>Museum</h1>
+  <p class="lobby-sub">Interactive Exhibition</p>
+  <div class="deco-line"></div>
+  <button class="enter-btn" onclick="showPage('gallery')">
+    <span>Enter Gallery →</span>
+  </button>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery" class="page">
+  <div class="gallery-header">
+    <button class="back-btn" onclick="showPage('lobby')">← Lobby</button>
+    <h2 class="gallery-title">Gallery</h2>
+    <span class="art-count">3 works</span>
+  </div>
+  <div class="cards" id="cards-container"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail" class="page">
+  <div class="detail-hero" id="detail-hero"></div>
+  <div class="detail-body">
+    <div class="detail-type" id="detail-type"></div>
+    <h1 class="detail-title" id="detail-title"></h1>
+    <p class="detail-artist" id="detail-artist"></p>
+    <div class="detail-divider" id="detail-divider"></div>
+    <p class="detail-desc" id="detail-desc"></p>
+    <div class="detail-actions">
+      <button class="action-btn action-primary" id="back-gallery-btn">← Back to Gallery</button>
+      <button class="action-btn action-secondary" onclick="showPage('lobby')">🏛 Lobby</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var artworks = [
+  {
+    title: "Metamorphosis",
+    artist: "Student Art",
+    desc: "Represents growth and struggle through charcoal tones. This piece captures the raw emotion of transformation — from darkness into light, from confusion into clarity.",
+    type: "Student Work",
+    bg: "linear-gradient(135deg,#1a1208 0%,#0d0d0d 100%)",
+    accent: "#e8c97e",
+    emoji: "🌑"
+  },
+  {
+    title: "The Starry Night",
+    artist: "Vincent van Gogh",
+    desc: "Shows emotional turbulence through swirling skies. Painted in 1889, this masterpiece reflects Van Gogh's inner world — restless, vivid, and deeply expressive.",
+    type: "Art Appreciation",
+    bg: "linear-gradient(135deg,#0a0a2e 0%,#0d0d0d 100%)",
+    accent: "#f5d769",
+    emoji: "🌌"
+  },
+  {
+    title: "Vinta Boat",
+    artist: "Cultural Art",
+    desc: "Symbol of Filipino maritime heritage and identity. The vibrant sails of the Vinta represent the rich culture and seafaring spirit of the Tausug people of Mindanao.",
+    type: "Cultural Heritage",
+    bg: "linear-gradient(135deg,#0a1f14 0%,#0d0d0d 100%)",
+    accent: "#ff6b35",
+    emoji: "⛵"
+  }
+];
+
+// Build gallery cards
+var container = document.getElementById('cards-container');
+for (var i = 0; i < artworks.length; i++) {
+  var art = artworks[i];
+  var card = document.createElement('div');
+  card.className = 'art-card';
+  card.style.setProperty('--accent', art.accent);
+  card.innerHTML =
+    '<span class="card-emoji">' + art.emoji + '</span>' +
+    '<div class="card-type">' + art.type + '</div>' +
+    '<div class="card-title">' + art.title + '</div>' +
+    '<div class="card-artist">' + art.artist + '</div>' +
+    '<span class="card-arrow">→</span>';
+  (function(index) {
+    card.onclick = function() { openDetail(index); };
+  })(i);
+  container.appendChild(card);
+}
+
+document.getElementById('back-gallery-btn').onclick = function() {
+  showPage('gallery');
+};
+
+function showPage(id) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].classList.remove('active');
+  }
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function openDetail(i) {
+  var art = artworks[i];
+  var detail = document.getElementById('detail');
+  detail.style.background = art.bg;
+  detail.style.setProperty('--d-accent', art.accent);
+  document.getElementById('detail-hero').textContent = art.emoji;
+  document.getElementById('detail-hero').style.background = art.bg;
+  document.getElementById('detail-type').textContent = art.type;
+  document.getElementById('detail-title').textContent = art.title;
+  document.getElementById('detail-artist').textContent = 'by ' + art.artist;
+  document.getElementById('detail-divider').style.background = art.accent;
+  document.getElementById('detail-desc').textContent = art.desc;
+  document.querySelector('.action-primary').style.background = art.accent;
+  document.querySelector('.action-primary').style.borderColor = art.accent;
+  showPage('detail');
+}
+</script>
+</body>
+</html>
